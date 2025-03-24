@@ -8,13 +8,16 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w"
+    "build": "npm run build:js && npm run build:site",
+    "build:js": "rollup -c",
+    "build:site": "mkdir -p dist && cp index.html dist/ && cp -r src dist/",
+    "dev": "rollup -c -w",
+    "vercel-build": "npm run build"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
+    "rollup": "^3.0.0",
     "@rollup/plugin-terser": "^0.4.0",
-    "rollup": "^3.0.0"
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-commonjs": "^24.0.0"
   }
 }

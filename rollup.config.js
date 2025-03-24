@@ -7,6 +7,11 @@ export default {
   input: "src/index.js",
   output: [
     {
+      file: "dist/src/index.js",
+      format: "es",
+      sourcemap: true,
+    },
+    {
       file: "dist/prop.js",
       format: "iife",
       name: "PropStyle",
