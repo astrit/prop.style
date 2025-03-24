@@ -1,5 +1,5 @@
 // src/theme/ThemeManager.js
-import { TokenManager } from "../tokens/TokenManager.js";
+import { TokenManager } from "../tokens/TokensManager.js";
 
 export class ThemeManager {
   constructor() {
