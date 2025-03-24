@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prop Style Documentation</title>
+    <!-- Module version -->
+    <script type="module">
+      import "./src/index.js";
+    </script>
+
+    <script src="dist/prop.js"></script>
+  </head>
+  <body>
+    <prop-theme
+      mode="light"
+      token-colors='{
+        "doc": {
+          "light": "#ffffff",
+          "dark": "#1a1a1a"
+        },
+        "sidebar": {
+          "light": "#f5f5f5",
+          "dark": "#2a2a2a"
+        },
+        "border": {
+          "light": "#eaeaea",
+          "dark": "#333333"
+        }
+      }'
+      token-spacing='{
+        "page": "40px",
+        "section": "24px",
+        "content": "16px"
+      }'
+    ></prop-theme>
+
+    <prop-grid grid-template-columns="250px 1fr" min-height="100vh">
+      <prop-div
+        background="sidebar"
+        border-right="1px solid var(--colors-border)"
+        padding="section"
+        position="sticky"
+        top="0"
+        height="100vh"
+        overflow-y="auto"
+      >
+        <prop-div margin-bottom="section">
+          <prop-div font-size="24px">&lt;prop-style /&gt;</prop-div>
+          <prop-div color="#666" font-size="14px">v0.0.1</prop-div>
+        </prop-div>
+
+        <prop-div gap="content" display="flex" flex-direction="column">
+          <prop-div>
+            <prop-div padding="8px">Getting Started</prop-div>
+            <prop-div padding="8px">Theme</prop-div>
+            <prop-div padding="8px">Components</prop-div>
+            <prop-div padding="8px" padding-left="16px">prop-div</prop-div>
+            <prop-div padding="8px" padding-left="16px">prop-grid</prop-div>
+            <prop-div padding="8px" padding-left="16px">prop-flex</prop-div>
+            <prop-div padding="8px">Tokens</prop-div>
+          </prop-div>
+        </prop-div>
+      </prop-div>
+
+      <prop-div padding="page" max-width="1200px">
+        <prop-div margin-bottom="section">
+          <prop-div font-size="24px" margin-bottom="content">
+            Getting Started
+          </prop-div>
+
+          <prop-div margin-bottom="content">
+            Prop Style is a lightweight CSS-in-HTML library that allows you to
+            style components using HTML attributes.
+          </prop-div>
+
+          <prop-div
+            border="1px solid var(--colors-border)"
+            border-radius="lg"
+            overflow="hidden"
+            margin-top="section"
+          >
+            <prop-div padding="content">
+              <prop-div
+                display="flex"
+                justify-content="center"
+                padding="content"
+                background="primary"
+                color="white"
+                border-radius="md"
+              >
+                Hello Prop Style!
+              </prop-div>
+            </prop-div>
+
+            <prop-div
+              background="sidebar"
+              padding="content"
+              font-family="monospace"
+              white-space="pre"
+              overflow-x="auto"
+            >
+              &lt;prop-div display="flex" justify-content="center"
+              padding="content" background="primary" color="white"
+              border-radius="md" &gt; Hello Prop Style! &lt;/prop-div&gt;
+            </prop-div>
+          </prop-div>
+        </prop-div>
+      </prop-div>
+    </prop-grid>
+  </body>
+</html>

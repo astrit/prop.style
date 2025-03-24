@@ -1,5 +1,5 @@
 // src/theme/ThemeManager.js
-import { TokenManager } from "../tokens/TokensManager.js";
+import { TokenManager } from "../tokens/TokenManager.js";
 
 export class ThemeManager {
   constructor() {
@@ -62,6 +62,11 @@ export class ThemeManager {
       :root { 
         color-scheme: ${this.mode};
         ${cssString}
+        font-family: sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
       }
     `);
 
@@ -88,75 +93,5 @@ export class ThemeManager {
   mergeTokens(newTokens) {
     this.tokenManager.mergeTokens(newTokens);
     this.updateTheme();
-  }
-}
-
-// src/components/Base.js
-export class Base extends HTMLElement {
-  constructor() {
-    super();
-    this.sheet = new CSSStyleSheet();
-    this._shadow = this.attachShadow({ mode: "closed" });
-    this._shadow.adoptedStyleSheets = [this.sheet];
-
-    const slot = document.createElement("slot");
-    this._shadow.appendChild(slot);
-  }
-
-  static get tokenMapping() {
-    return {
-      color: "colors",
-      background: "colors",
-      "background-color": "colors",
-      padding: "spacing",
-      margin: "spacing",
-      gap: "spacing",
-      "border-radius": "radius",
-    };
-  }
-
-  connectedCallback() {
-    this.updateStyles();
-  }
-
-  attributeChangedCallback() {
-    this.updateStyles();
-  }
-
-  static get observedAttributes() {
-    return ["*"];
-  }
-
-  updateStyles() {
-    const theme = document.querySelector("prop-theme");
-    const tokens = theme?.themeManager?.tokenManager?.tokens;
-
-    const styles = Array.from(this.attributes)
-      .map((attr) => {
-        const prop = this.kebabCase(attr.name);
-        let value = attr.value;
-
-        const tokenCategory = this.constructor.tokenMapping[prop];
-        if (tokenCategory && tokens?.[tokenCategory]?.[value]) {
-          value = `var(--${tokenCategory}-${value})`;
-        }
-
-        return `${prop}: ${value};`;
-      })
-      .join("\n");
-
-    this.sheet.replaceSync(`:host { ${styles} }`);
-  }
-
-  kebabCase(str) {
-    return str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-  }
-
-  setStyle(property, value) {
-    this.setAttribute(property, value);
-  }
-
-  removeStyle(property) {
-    this.removeAttribute(property);
   }
 }

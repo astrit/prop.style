@@ -1,4 +1,6 @@
 // src/tokens/TokenManager.js
+import { defaultTokens } from "./defaultTokens.js";
+
 export class TokenManager {
   constructor(initialTokens = defaultTokens) {
     this.tokens = { ...initialTokens };

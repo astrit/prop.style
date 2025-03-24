@@ -23,6 +23,8 @@ export class Base extends HTMLElement {
   }
 
   connectedCallback() {
+    // Apply default styles first
+    this.applyDefaultStyles();
     this.updateStyles();
   }
 
@@ -32,6 +34,18 @@ export class Base extends HTMLElement {
 
   static get observedAttributes() {
     return ["*"];
+  }
+
+  applyDefaultStyles() {
+    if (this.constructor.defaultStyles) {
+      Object.entries(this.constructor.defaultStyles).forEach(
+        ([prop, value]) => {
+          if (!this.hasAttribute(prop)) {
+            this.setAttribute(prop, value);
+          }
+        }
+      );
+    }
   }
 
   updateStyles() {
