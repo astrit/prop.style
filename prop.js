@@ -172,7 +172,7 @@ class Theme extends HTMLElement {
 }
 
 // Define all components
-customElements.define("x-div", Div);
-customElements.define("x-grid", Grid);
-customElements.define("x-flex", Flex);
-customElements.define("x-theme", Theme);
+customElements.define("prop-div", Div);
+customElements.define("prop-grid", Grid);
+customElements.define("prop-flex", Flex);
+customElements.define("prop-theme", Theme);
