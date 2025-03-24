@@ -1,61 +1,161 @@
 // tokens.js
-const tokens = {
-  colors: {
-    primary: {
-      light: "#0066cc",
-      dark: "#66b3ff",
-    },
-    background: {
-      light: "#ffffff",
-      dark: "#1a1a1a",
-    },
-    text: {
-      light: "#000000",
-      dark: "#ffffff",
-    },
-  },
-  spacing: {
-    sm: "8px",
-    md: "16px",
-    lg: "24px",
-  },
-  radius: {
-    sm: "4px",
-    md: "8px",
-    lg: "16px",
-  },
-};
+class TokenManager {
+  constructor() {
+    this.tokens = {
+      colors: {
+        primary: {
+          light: "#0066cc",
+          dark: "#66b3ff",
+        },
+        secondary: {
+          light: "#4c4c4c",
+          dark: "#b3b3b3",
+        },
+        background: {
+          light: "#ffffff",
+          dark: "#1a1a1a",
+        },
+        text: {
+          light: "#000000",
+          dark: "#ffffff",
+        },
+      },
+      spacing: {
+        xs: "4px",
+        sm: "8px",
+        md: "16px",
+        lg: "24px",
+        xl: "32px",
+      },
+      radius: {
+        none: "0",
+        sm: "4px",
+        md: "8px",
+        lg: "16px",
+        full: "9999px",
+      },
+    };
+  }
+
+  setToken(category, key, value) {
+    if (!this.tokens[category]) {
+      this.tokens[category] = {};
+    }
+    this.tokens[category][key] = value;
+  }
+
+  setTokens(newTokens) {
+    this.tokens = {
+      ...this.tokens,
+      ...newTokens,
+    };
+  }
+
+  getToken(category, key) {
+    return this.tokens[category]?.[key];
+  }
+
+  mergeTokens(newTokens) {
+    Object.entries(newTokens).forEach(([category, values]) => {
+      if (!this.tokens[category]) {
+        this.tokens[category] = {};
+      }
+      this.tokens[category] = {
+        ...this.tokens[category],
+        ...values,
+      };
+    });
+  }
+}
 
 // theme.js
 class ThemeManager {
   constructor() {
     this.sheet = new CSSStyleSheet();
-    this.mode = "light";
+    this.tokenManager = new TokenManager();
+    this.mode = this.getInitialMode();
+    this.updateTheme();
+    this.setupColorSchemeListener();
+  }
+
+  getInitialMode() {
+    const stored = localStorage.getItem("theme-mode");
+    if (stored) return stored;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  setupColorSchemeListener() {
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        if (!localStorage.getItem("theme-mode")) {
+          this.mode = e.matches ? "dark" : "light";
+          this.updateTheme();
+        }
+      });
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+    localStorage.setItem("theme-mode", mode);
     this.updateTheme();
   }
 
   toggleMode() {
-    this.mode = this.mode === "light" ? "dark" : "light";
-    this.updateTheme();
+    this.setMode(this.mode === "light" ? "dark" : "light");
   }
 
   updateTheme() {
-    const cssVars = Object.entries(tokens).reduce((acc, [category, values]) => {
-      Object.entries(values).forEach(([key, value]) => {
-        if (typeof value === "object") {
-          acc[`--${category}-${key}`] = value[this.mode];
-        } else {
-          acc[`--${category}-${key}`] = value;
-        }
-      });
-      return acc;
-    }, {});
+    const cssVars = Object.entries(this.tokenManager.tokens).reduce(
+      (acc, [category, values]) => {
+        Object.entries(values).forEach(([key, value]) => {
+          if (typeof value === "object") {
+            acc[`--${category}-${key}`] = value[this.mode];
+          } else {
+            acc[`--${category}-${key}`] = value;
+          }
+        });
+        return acc;
+      },
+      {}
+    );
 
     const cssString = Object.entries(cssVars)
       .map(([key, value]) => `${key}: ${value};`)
       .join("\n");
 
-    this.sheet.replaceSync(`:root { ${cssString} }`);
+    this.sheet.replaceSync(`
+        :root { 
+          color-scheme: ${this.mode};
+          ${cssString}
+        }
+      `);
+
+    document.documentElement.setAttribute("data-theme", this.mode);
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.content = this.tokenManager.getToken(
+        "colors",
+        "background"
+      )[this.mode];
+    }
+  }
+
+  setToken(category, key, value) {
+    this.tokenManager.setToken(category, key, value);
+    this.updateTheme();
+  }
+
+  setTokens(newTokens) {
+    this.tokenManager.setTokens(newTokens);
+    this.updateTheme();
+  }
+
+  mergeTokens(newTokens) {
+    this.tokenManager.mergeTokens(newTokens);
+    this.updateTheme();
   }
 }
 
@@ -75,8 +175,10 @@ class Base extends HTMLElement {
     return {
       color: "colors",
       background: "colors",
+      "background-color": "colors",
       padding: "spacing",
       margin: "spacing",
+      gap: "spacing",
       "border-radius": "radius",
     };
   }
@@ -125,6 +227,53 @@ class Base extends HTMLElement {
 }
 
 // components.js
+class Theme extends HTMLElement {
+  constructor() {
+    super();
+    this.themeManager = new ThemeManager();
+    document.adoptedStyleSheets = [
+      ...document.adoptedStyleSheets,
+      this.themeManager.sheet,
+    ];
+  }
+
+  static get observedAttributes() {
+    return ["mode", "token-colors", "token-spacing", "token-radius", "token"];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (!newValue || oldValue === newValue) return;
+
+    if (name === "mode") {
+      this.themeManager.setMode(newValue);
+    } else if (name === "token") {
+      const [path, value] = newValue.split(":");
+      const [category, key] = path.split(".");
+      if (category && key && value) {
+        try {
+          const parsedValue = value.startsWith("{") ? JSON.parse(value) : value;
+          this.themeManager.setToken(category, key, parsedValue);
+        } catch (e) {
+          console.warn(`Invalid token value: ${value}`, e);
+        }
+      }
+    } else if (name.startsWith("token-")) {
+      try {
+        const category = name.replace("token-", "");
+        const tokens = JSON.parse(newValue);
+        this.themeManager.mergeTokens({ [category]: tokens });
+      } catch (e) {
+        console.warn(`Invalid token value for ${name}`, e);
+      }
+    }
+  }
+
+  toggleMode() {
+    this.themeManager.toggleMode();
+    this.setAttribute("mode", this.themeManager.mode);
+  }
+}
+
 class Div extends Base {
   static get defaultStyles() {
     return {
@@ -149,30 +298,8 @@ class Flex extends Base {
   }
 }
 
-class Theme extends HTMLElement {
-  constructor() {
-    super();
-    this.themeManager = new ThemeManager();
-    document.adoptedStyleSheets = [
-      ...document.adoptedStyleSheets,
-      this.themeManager.sheet,
-    ];
-  }
-
-  static get observedAttributes() {
-    return ["mode"];
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name === "mode" && oldValue !== newValue) {
-      this.themeManager.mode = newValue;
-      this.themeManager.updateTheme();
-    }
-  }
-}
-
-// Define all components
+// Register components
+customElements.define("prop-theme", Theme);
 customElements.define("prop-div", Div);
 customElements.define("prop-grid", Grid);
 customElements.define("prop-flex", Flex);
-customElements.define("prop-theme", Theme);
