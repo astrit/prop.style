@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prop Style</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="prop.js"></script>
+  </head>
+  <body>
+    <section>
+      <p>&lt;prop-style /&gt;</p>
+      <small>0.0.1</small>
+      <hr />
+      <!-- Basic usage -->
+      <prop-div display="flex" justify-content="center" align-items="center">
+        Centered content
+      </prop-div>
+
+      <!-- Grid example -->
+      <prop-grid display="grid" grid-template-columns="1fr 1fr" gap="20px">
+        <div>Grid Item 1</div>
+        <div>Grid Item 2</div>
+      </prop-grid>
+
+      <!-- Complex styling -->
+      <prop-div
+        display="flex"
+        background="teal"
+        padding="20px"
+        border-radius="10px"
+        color="white"
+        box-shadow="0 4px 6px rgba(0,0,0,0.1)"
+      >
+        Styled content
+      </prop-div>
+    </section>
+  </body>
+</html>

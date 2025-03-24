@@ -1,0 +1,20 @@
+{
+  "name": "prop-style",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/prop.js",
+  "module": "dist/prop.esm.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "rollup": "^3.0.0"
+  }
+}
